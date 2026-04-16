@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+
+.app {
+ @apply max-w-full;
+}
+
+.distance-form-wrapper {
+ @apply flex flex-col gap-4 p-4;
+}
+
+.distance-form-card {
+ @apply p-2;
+}
+
+.distance-form-inputs-wrapper {
+ @apply flex flex-row gap-8 p-4 items-center justify-center;
+}
+
+.distance-calculator-wrapper {
+ @apply p-8;
+}
