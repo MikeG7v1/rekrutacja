@@ -112,7 +112,7 @@ watch(
       map.fitBounds(group.getBounds().pad(0.2));
     }
   },
-  { deep: true, immediate: true } // 'deep' jest kluczowy dla obiektów!
+  { deep: true, immediate: true }
 );
 
 watch(
