@@ -66,46 +66,47 @@ onMounted(() => {
   });
 });
 
+const updateMarker = (lat, lng, markerVar, label, pointKeyPrefix) => {
+  if (!lat || !lng) return markerVar;
+
+  const pos = [lat, lng];
+
+  if (markerVar) {
+    markerVar.setLatLng(pos);
+  } else {
+    markerVar = L.marker(pos, { draggable: true }).addTo(map).bindPopup(label);
+
+    markerVar.on("dragend", (e) => {
+      const { lat, lng } = e.target.getLatLng();
+      emit("update:modelValue", {
+        ...props.modelValue,
+        [`${pointKeyPrefix}Lat`]: lat.toFixed(5),
+        [`${pointKeyPrefix}Long`]: lng.toFixed(5),
+      });
+    });
+  }
+  return markerVar;
+};
+
 watch(
   () => props.modelValue,
   (newVal) => {
     if (!map) return;
 
-    if (newVal.pointALat && newVal.pointALong) {
-      const posA = [newVal.pointALat, newVal.pointALong];
-      if (markerA) {
-        markerA.setLatLng(posA);
-      } else {
-        markerA = L.marker(posA, { draggable: "true" }).addTo(map).bindPopup("Point A");
-
-        markerA.on("dragend", (e) => {
-          const { lat, lng } = e.target.getLatLng();
-          emit("update:modelValue", {
-            ...props.modelValue,
-            pointALat: lat.toFixed(5),
-            pointALong: lng.toFixed(5),
-          });
-        });
-      }
-    }
-
-    if (newVal.pointBLat && newVal.pointBLong) {
-      const posB = [newVal.pointBLat, newVal.pointBLong];
-      if (markerB) {
-        markerB.setLatLng(posB);
-      } else {
-        markerB = L.marker(posB, { draggable: "true" }).addTo(map).bindPopup("Point B");
-
-        markerB.on("dragend", (e) => {
-          const { lat, lng } = e.target.getLatLng();
-          emit("update:modelValue", {
-            ...props.modelValue,
-            pointBLat: lat.toFixed(5),
-            pointBLong: lng.toFixed(5),
-          });
-        });
-      }
-    }
+    markerA = updateMarker(
+      newVal.pointALat,
+      newVal.pointALong,
+      markerA,
+      "Point A",
+      "pointA"
+    );
+    markerB = updateMarker(
+      newVal.pointBLat,
+      newVal.pointBLong,
+      markerB,
+      "Point B",
+      "pointB"
+    );
 
     if (markerA && markerB) {
       const group = new L.featureGroup([markerA, markerB]);
@@ -113,16 +114,6 @@ watch(
     }
   },
   { deep: true, immediate: true }
-);
-
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    if (!map) {
-      return;
-    }
-  },
-  { deep: true }
 );
 
 const onRemoveMarkers = () => {
@@ -142,20 +133,3 @@ const onRemoveMarkers = () => {
   }
 };
 </script>
-
-<style scoped>
-.map-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-#map {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-</style>

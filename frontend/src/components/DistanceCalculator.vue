@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import MapContainer from "./MapContainer.vue";
 
 import DistanceForm from "./DistanceForm.vue";
@@ -30,7 +30,36 @@ const coords = ref({
   pointBLong: null,
 });
 
-const onCalculate = async (coords) => {
-  result.value = await fetchDistance(coords);
-};
+watch(
+  () => coords.value,
+  (newVal) => {
+    if (result.value) {
+      result.value = null;
+    }
+  },
+  { deep: true }
+);
+
+function onCalculate(coords) {
+  if (
+    !coords.pointALat ||
+    !coords.pointALong ||
+    !coords.pointBLat ||
+    !coords.pointBLong
+  ) {
+    error.value = "Please fill in all coordinates for both points";
+    result.value = null;
+    return;
+  }
+  calculateDistance(coords);
+}
+
+async function calculateDistance(coords) {
+  try {
+    result.value = await fetchDistance(coords);
+  } catch (err) {
+    error.value = err.message || "An error occurred while calculating distance";
+    result.value = null;
+  }
+}
 </script>

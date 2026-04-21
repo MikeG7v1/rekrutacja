@@ -7,6 +7,7 @@
     :rules="validationRules"
     @input="onInput"
     @blur="onBlur"
+    @click:clear="onClear"
     type="number"
   ></v-text-field>
 </template>
@@ -55,18 +56,20 @@ watch(
 
 function onInput() {
   const val = internalValue.value;
-  if (!val) {
-    emit("update:modelValue", null);
-    return;
-  }
   const isValid = validationRules.every((rule) => {
     const result = rule(val);
     return result === true;
   });
-
   if (isValid) {
     emit("update:modelValue", Number(val));
+  } else {
+    emit("update:modelValue", null);
   }
+}
+
+function onClear() {
+  internalValue.value = "";
+  emit("update:modelValue", null);
 }
 
 // Formatting to 5 decimal places for coordinates
